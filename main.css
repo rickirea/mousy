@@ -2,6 +2,10 @@ body{
   text-align: center;
 }
 
+#board_game{
+  position: relative;
+}
+
 #canvas{
   border: 1px solid black;
 }
