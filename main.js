@@ -27,6 +27,28 @@ window.onload = function(){
     }
   }
 
+  function BoardMap(rowH,colW,rows,columns){
+    this.coordinates = [];
+    this.rowHeight = rowH;
+    this.columnWidth = colW;
+    this.rows = rows;
+    this.columns = columns;
+  
+    this.build = function(){
+       for(let y=0; y < this.rows; y++)
+       {   
+        let row =[]
+        for(let x=0; x < this.columns; x++)
+        {
+          row.push({"x" : x*this.columnWidth, "y" : y*this.rowHeight});
+        }
+  
+        this.coordinates.push(row);
+      }
+    }
+    
+  }
+
   function Cuadricula(){
     this.x = 0;
     this.y = 0;
@@ -52,20 +74,6 @@ window.onload = function(){
     }
   }
 
-  function Pipe(x1, y1, x2, y2, lineType){
-    this.x1 = x1;
-    this.y1 = y1;
-    this.x2 = x2;
-    this.y2 = y2;
-    this.lineType = lineType;
-
-    this.draw = function(){
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-    }
-  }
-
   function Mousy(){
     this.x = 0;
     this.y = 360;
@@ -77,7 +85,7 @@ window.onload = function(){
     this.isGoingDown = false;
     this.isGoingLeft = false;
     this.isGoingRight = false;
-    this.speed = 1;
+    this.speed = 2;
     
     //this.sound = new Audio();
     //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
@@ -294,62 +302,13 @@ window.onload = function(){
     }
 
     this.isTouching = function(pipe){
-      // return (this.x < pipe.x + pipe.width) 
-      //     && (this.x + this.width > pipe.x)
-      //     && (this.y < pipe.y + pipe.height)
-      //     && (this.y + this.height > pipe.y);
-      if(pipe.lineType==="horizontal")
-      {
-        if(this.isGoingUP)
-        {
-          return(pipe.y1 >= this.y && pipe.y1 <= this.y + this.height)
-          &&((this.x + this.width >= pipe.x1 && this.x + this.width <= pipe.x2)
-          ||(this.x >= pipe.x1 && this.x <= pipe.x2));
-        }
 
-        if(this.isGoingDown)
-        {
-          return(pipe.y1 >= this.y && pipe.y1 <= this.y + this.height)
-              &&(this.x + this.width >= pipe.x1 && this.x <= pipe.x2);
-        }   
-
-        if(this.isGoingLeft)
-        {
-          return(pipe.y1 >= this.y && pipe.y1 <= this.y + this.height)
-              &&(this.x <= pipe.x2 && this.x >= pipe.x1); 
-        }  
-
-        if(this.isGoingRight)
-        {
-          return(pipe.y1 >= this.y && pipe.y1 <= this.y + this.height)
-              &&(this.x + this.width >= pipe.x1 && this.x + this.width <= pipe.x2); 
-        }  
-      }
-
-      if(pipe.lineType==="vertical")
-      {
-        // if(this.isGoingUP)
-        // {
-        //   return(this.y >= pipe.y1 && this.y <= pipe.y2)
-        //       &&(this.x <= pipe.x1 && this.x + this.width >= pipe.x1);
-        // }
-
-        if(this.isGoingRight)
-        {////
-          return(pipe.x1 >= this.x && pipe.x1 <= this.x + this.width)
-              &&(this.y + this.height >= pipe.y1 && this.y <= pipe.y2);
-        }
-
-        if(this.isGoingLeft)
-        {
-          return(pipe.x1 >= this.x && pipe.x1 <= this.x + this.width)
-              &&(this.y + this.height >= pipe.y1 && this.y <= pipe.y2);
-        }   
-      }
-         
-          //&& (this.x + this.width > pipe.x)
-          //&& (this.y < pipe.y + pipe.height)
-          //&& (this.y + this.height > pipe.y);
+      //console.log(this.x + this.width + "-->" + pipe.x);
+      return ((this.x + this.width > pipe.x && this.y === pipe.y) && (this.x < pipe.x))
+          || ((this.y + this.height > pipe.y && this.x === pipe.x) && (this.y < pipe.y)) 
+          || ((this.x < pipe.x + pipe.width && this.y === pipe.y) && (this.x + this.width > pipe.x + pipe.width))
+          || ((this.y < pipe.y + pipe.height && this.x === pipe.x) && (this.y + this.height > pipe.y + pipe.height))
+          || (this.x === pipe.x && this.y === pipe.y)
     }
   }
 
@@ -392,13 +351,15 @@ window.onload = function(){
     // }
   }
 
-  function Trap(){
-    this.x = 240;
-    this.y = 160;
+  function Texture(celda,textureImage){
+    this.x = celda.x;
+    this.y = celda.y;
     this.width = 80;
     this.height = 80;
     this.img = new Image();
-    this.img.src = "images/mousetrap2.png";
+    this.img.src = textureImage;
+    this.textureImage = textureImage;
+    this.show = true;
     
     //this.sound = new Audio();
     //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
@@ -421,202 +382,20 @@ window.onload = function(){
       this.y -= 50;
       //this.sound.pause();
       //this.sound.play();
-    }.bind(this);
-
-    // this.isTouching = function(pipe){
-    //   return (this.x < pipe.x + pipe.width) 
-    //       && (this.x + this.width > pipe.x)
-    //       && (this.y < pipe.y + pipe.height)
-    //       && (this.y + this.height > pipe.y);
-    // }
-  }
-
-  function Snake(){
-    this.x = 480;
-    this.y = 240;
-    this.width = 80;
-    this.height = 80;
-    this.img = new Image();
-    this.img.src = "images/snake.png";
-    
-    //this.sound = new Audio();
-    //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
-
-    this.img.onload = function(){
-      this.draw();
-    }.bind(this);
-
-    this.draw = function(){
-      //this.y += 2;
-      ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-
-      // if(this.y < 0 || this.y > canvas.height - this.height)
-      // {
-      //   gameOver();
-      // }
     }
 
-    this.move = function(){
-      this.y -= 50;
-      //this.sound.pause();
-      //this.sound.play();
-    }.bind(this);
+    this.flipShow = function(){
+      this.show = !this.show;
 
-    // this.isTouching = function(pipe){
-    //   return (this.x < pipe.x + pipe.width) 
-    //       && (this.x + this.width > pipe.x)
-    //       && (this.y < pipe.y + pipe.height)
-    //       && (this.y + this.height > pipe.y);
-    // }
-  }
-
-  function Texture(x,y){
-    this.x = x;
-    this.y = y;
-    this.width = 80;
-    this.height = 80;
-    this.img = new Image();
-    this.img.src = "images/stone7.jpg";
-    
-    //this.sound = new Audio();
-    //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
-
-    this.img.onload = function(){
-      this.draw();
-    }.bind(this);
-
-    this.draw = function(){
-      //this.y += 2;
-      ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-
-      // if(this.y < 0 || this.y > canvas.height - this.height)
-      // {
-      //   gameOver();
-      // }
+      if(this.show)
+      {
+        this.img.src = this.textureImage;
+      }
+      else
+      {
+        this.img.src = "";
+      }
     }
-
-    this.move = function(){
-      this.y -= 50;
-      //this.sound.pause();
-      //this.sound.play();
-    }.bind(this);
-
-    // this.isTouching = function(pipe){
-    //   return (this.x < pipe.x + pipe.width) 
-    //       && (this.x + this.width > pipe.x)
-    //       && (this.y < pipe.y + pipe.height)
-    //       && (this.y + this.height > pipe.y);
-    // }
-  }
-
-  function Bridge(x,y){
-    this.x = x;
-    this.y = y;
-    this.width = 80;
-    this.height = 80;
-    this.img = new Image();
-    this.img.src = "images/wood.png";
-    
-    //this.sound = new Audio();
-    //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
-
-    this.img.onload = function(){
-      this.draw();
-    }.bind(this);
-
-    this.draw = function(){
-      //this.y += 2;
-      ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-
-      // if(this.y < 0 || this.y > canvas.height - this.height)
-      // {
-      //   gameOver();
-      // }
-    }
-
-    this.move = function(){
-      this.y -= 50;
-      //this.sound.pause();
-      //this.sound.play();
-    }.bind(this);
-
-    // this.isTouching = function(pipe){
-    //   return (this.x < pipe.x + pipe.width) 
-    //       && (this.x + this.width > pipe.x)
-    //       && (this.y < pipe.y + pipe.height)
-    //       && (this.y + this.height > pipe.y);
-    // }
-  }
-
-  function BrokeStone(x,y){
-    this.x = x;
-    this.y = y;
-    this.width = 80;
-    this.height = 80;
-    this.img = new Image();
-    this.img.src = "images/brokeStone.png";
-    
-    //this.sound = new Audio();
-    //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
-
-    this.img.onload = function(){
-      this.draw();
-    }.bind(this);
-
-    this.draw = function(){
-      //this.y += 2;
-      ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-
-      // if(this.y < 0 || this.y > canvas.height - this.height)
-      // {
-      //   gameOver();
-      // }
-    }
-
-    this.move = function(){
-      this.y -= 50;
-      //this.sound.pause();
-      //this.sound.play();
-    }.bind(this);
-
-    // this.isTouching = function(pipe){
-    //   return (this.x < pipe.x + pipe.width) 
-    //       && (this.x + this.width > pipe.x)
-    //       && (this.y < pipe.y + pipe.height)
-    //       && (this.y + this.height > pipe.y);
-    // }
-  }
-
-  function Tree(x,y){
-    this.x = x;
-    this.y = y;
-    this.width = 80;
-    this.height = 80;
-    this.img = new Image();
-    this.img.src = "images/tree.png";
-    
-    //this.sound = new Audio();
-    //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
-
-    this.img.onload = function(){
-      this.draw();
-    }.bind(this);
-
-    this.draw = function(){
-      //this.y += 2;
-      ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-
-      // if(this.y < 0 || this.y > canvas.height - this.height)
-      // {
-      //   gameOver();
-      // }
-    }
-
-    this.move = function(){
-      this.y -= 50;
-      //this.sound.pause();
-      //this.sound.play();
-    }.bind(this);
 
     // this.isTouching = function(pipe){
     //   return (this.x < pipe.x + pipe.width) 
@@ -628,55 +407,111 @@ window.onload = function(){
 
   //declaraciones
   var board = new Board();
+  var boardMap = new BoardMap(80,80,5,10);
   var mousy = new Mousy();
   var queso = new Queso();
-  var mouseTrap = new Trap();
-  var snake = new Snake();
   var cuadricula = new  Cuadricula();
-  var bridge = new Bridge(160,80);
-  var bridge2 = new Bridge(640,160);
-  var brokeStone = new BrokeStone(160,80);
-  var tree = new Tree(320,80);
   var intervalo;
   var frames = 0;
-  var pipes = [];
   var textures = [];
+  var edges = [];
   var stepCount =80;
+  var traps = [];
+  var program = [];
 
   //listeners
   //listener
+  var timeoutId;
+  var timeoutFlip;
   addEventListener('keydown', function(e){
+    if(e.keyCode === 32)
+    {
+      program.push("pause");
+    }
     if(e.keyCode === 37)
     {
-      mousy.turnLeft();
-      //stepCount=0;
+      //mousy.turnLeft();
+      program.push("left");
     }
     if(e.keyCode === 38)
     {
-      //mousy.moveUp();
-      stepCount=0;
+      //stepCount=0;
+      program.push("fordward");
     }
     if(e.keyCode === 39)
     {
-      mousy.turnRight();
-      //stepCount=0;
+      //mousy.turnRight();
+      program.push("right");
     }
     if(e.keyCode === 40)
     {
-      //mousy.moveDown();
-      //stepCount=0;
+      timeoutId = setTimeout(callbackFunction, 0);
+      timeoutFlip = setTimeout(callbackFlip,0);
     }
   });
 
-  //aux
-  function gameOver(){
-    alert("Game Over...");
+  var counter = 0;
+  var seconds = 1000;
 
+  var callbackFunction = function () {
+    //console.log(counter);
+    executeInstruction(program[counter]);
+    timeoutId = setTimeout(callbackFunction, seconds);
+
+    counter += 1;
+    //seconds += 1000;
+
+    if (counter === program.length) {
+      clearTimeout(timeoutId);
+      program = [];
+      counter = 0;
+      //seconds = 1000;
+    }
+  } 
+
+  var callbackFlip = function () {
+    traps.forEach(function(trap){
+      trap.flipShow();
+    });
+
+    timeoutFlip = setTimeout(callbackFlip, 3000);
+  }
+
+  //aux
+  function executeInstruction(instruction)
+  {
+    switch(instruction)
+        {
+          case "left":
+          {
+            mousy.turnLeft();
+            break;
+          }
+          case "right":
+          {
+            mousy.turnRight();
+            break;
+          }
+          case "fordward":
+          {
+            stepCount=0;
+            break;
+          }
+          case "pause":
+          {
+            break;
+          }
+        }
+  }
+
+  function gameOver(){
+    //alert("Game Over...");
     stop();
-    ctx.font = "60px courier";
+    ctx.font = "100px courier";
     ctx.strokeStyle = "red";
-    ctx.lineWidth = 4;
-    ctx.strokeText("Game Over",30, 250);
+    ctx.lineWidth = 6;
+
+    ctx.strokeText("Game Over",0,70);
   }
 
   function stop(){
@@ -686,143 +521,96 @@ window.onload = function(){
     //board.soundGameOver.play();
   }
 
-  function checkColition(){
-    pipes.forEach(function(pipe){
-      if(mousy.isTouching(pipe))
+  function checkColitionEdges(){
+    edges.forEach(function(edge){
+      if(mousy.isTouching(edge))
       {
         if(mousy.isGoingUP)
         {
-          // if(pipe.lineType === "vertical")
-          // {
-          //   mousy.dontGoUp(pipe.x1,pipe.y2);
-          // }
-          // else
-          // {
-            mousy.dontGoUp(pipe.x1,pipe.y1);
-          // }
+          mousy.dontGoUp(edge.y + edge.height);
         }
         if(mousy.isGoingDown)
         {
-          mousy.dontGoDown(pipe.x1,pipe.y1);
+          mousy.dontGoDown(edge.y);
         }
         if(mousy.isGoingLeft)
         {
-          if(pipe.lineType === "horizontal")
-          {
-            mousy.dontGoLeft(pipe.x2,pipe.y1);
-          }
-          else
-          {
-            mousy.dontGoLeft(pipe.x1,pipe.y1);
-          }
+          mousy.dontGoLeft(edge.x + edge.width);
         }
         if(mousy.isGoingRight)
         {
-          if(pipe.lineType === "horizontal")
-          {
-            mousy.dontGoRight(pipe.x1,pipe.y1);
-          }
-          else
-          {
-            mousy.dontGoRight(pipe.x1,pipe.y1);
-          }
+          mousy.dontGoRight(edge.x);
         }
         //gameOver();
       }
     });
   }
 
-  function generateTextures(){
-    textures.push(new Texture(0,320));
-    textures.push(new Texture(0,240));
-    textures.push(new Texture(0,160));
-    textures.push(new Texture(80,160));
-    textures.push(new Texture(80,80));
-    //textures.push(new Texture(160,80));
-    textures.push(new Texture(240,80));
-    textures.push(new Texture(240,0));
-    textures.push(new Texture(240,160));
-    textures.push(new Texture(240,240));
-    textures.push(new Texture(320,240));
-    textures.push(new Texture(320,0));
-    textures.push(new Texture(400,0));
-    textures.push(new Texture(320,320));
-    textures.push(new Texture(400,320));
-    textures.push(new Texture(400,80));
-    textures.push(new Texture(480,80));
-    textures.push(new Texture(480,320));
-    textures.push(new Texture(480,240));
-    textures.push(new Texture(560,240));   
-    textures.push(new Texture(560,80));
-    textures.push(new Texture(560,160)); 
-    //textures.push(new Texture(640,160));
-    textures.push(new Texture(720,160));  
-    textures.push(new Texture(720,80));
-    textures.push(new Texture(720,0));  
-  }
-
-  function generatePipes(){
-    pipes.push(new Pipe(80,80,80,120,"vertical"));
-    pipes.push(new Pipe(40,320,40,400,"vertical"));
-    pipes.push(new Pipe(80,320,80,360,"vertical"));
-    pipes.push(new Pipe(80,240,80,280,"vertical"));
-    pipes.push(new Pipe(40,120,40,160,"vertical"));
-    pipes.push(new Pipe(200,200,200,280,"vertical"));
-    pipes.push(new Pipe(280,120,280,360,"vertical"));
-    pipes.push(new Pipe(160,200,160,320,"vertical"));
-    pipes.push(new Pipe(120,160,120,320,"vertical"));
-    pipes.push(new Pipe(320,280,320,320,"vertical"));
-    pipes.push(new Pipe(240,280,240,400,"vertical"));
-    pipes.push(new Pipe(160,360,160,400,"vertical"));
-    pipes.push(new Pipe(200,320,200,360,"vertical"));
-    pipes.push(new Pipe(320,360,320,400,"vertical"));
-    pipes.push(new Pipe(360,320,360,360,"vertical"));
-    pipes.push(new Pipe(120,0,120,80,"vertical"));
-    pipes.push(new Pipe(160,40,160,120,"vertical"));
-    pipes.push(new Pipe(240,160,240,200,"vertical"));
-    pipes.push(new Pipe(200,0,200,40,"vertical"));
-    pipes.push(new Pipe(240,40,240,120,"vertical"));
-    pipes.push(new Pipe(200,120,200,160,"vertical"));
-    pipes.push(new Pipe(280,40,280,80,"vertical"));
-    pipes.push(new Pipe(320,0,320,40,"vertical"));
-    pipes.push(new Pipe(360,40,360,80,"vertical"));
-    pipes.push(new Pipe(320,120,320,160,"vertical"));
-    pipes.push(new Pipe(360,120,360,200,"vertical"));
-    pipes.push(new Pipe(360,240,360,280,"vertical"));
-    pipes.push(new Pipe(320,200,320,240,"vertical"));
-    pipes.push(new Pipe(80,360,120,360,"horizontal"));
-    pipes.push(new Pipe(40,320,80,320,"horizontal"));
-    pipes.push(new Pipe(0,280,80,280,"horizontal"));
-    pipes.push(new Pipe(40,240,80,240,"horizontal"));
-    pipes.push(new Pipe(0,200,80,200,"horizontal"));  
-    pipes.push(new Pipe(0,80,40,80,"horizontal"));
-    pipes.push(new Pipe(0,40,80,40,"horizontal"));
-    pipes.push(new Pipe(40,120,80,120,"horizontal"));
-    pipes.push(new Pipe(40,160,160,160,"horizontal"));
-    pipes.push(new Pipe(120,320,160,320,"horizontal"));
-    pipes.push(new Pipe(160,200,200,200,"horizontal"));
-    pipes.push(new Pipe(200,240,280,240,"horizontal"));
-    pipes.push(new Pipe(280,320,320,320,"horizontal"));
-    pipes.push(new Pipe(160,360,200,360,"horizontal"));
-    pipes.push(new Pipe(320,360,360,360,"horizontal"));
-    pipes.push(new Pipe(120,120,200,120,"horizontal"));
-    pipes.push(new Pipe(200,160,240,160,"horizontal"));
-    pipes.push(new Pipe(200,80,240,80,"horizontal"));
-    pipes.push(new Pipe(240,120,280,120,"horizontal"));
-    pipes.push(new Pipe(240,40,280,40,"horizontal"));
-    pipes.push(new Pipe(280,80,360,80,"horizontal"));
-    pipes.push(new Pipe(360,40,400,40,"horizontal"));
-    pipes.push(new Pipe(320,120,360,120,"horizontal"));
-    pipes.push(new Pipe(400,200,360,200,"horizontal"));
-    pipes.push(new Pipe(320,240,360,240,"horizontal"));
-    pipes.push(new Pipe(280,200,320,200,"horizontal"));
-  }
-
-  function drawPipes(){
-    ctx.strokeStyle = "white";
-    pipes.forEach(function(pipe){
-      pipe.draw();
+  function checkColitionTraps(){
+    traps.forEach(function(trap){
+      if(mousy.isTouching(trap) && trap.show)
+      {
+        gameOver();
+      }
     });
+  }
+
+  function generateTextures(){
+    textures.push(new Texture(boardMap.coordinates[4][0],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[3][0],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[2][0],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[2][1],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[1][1],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[1][2],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[1][3],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[0][3],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[2][3],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[3][3],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[3][4],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[0][4],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[0][5],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[4][4],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[4][5],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[1][5],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[1][6],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[4][6],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[3][6],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[3][7],"images/stone7.jpg"));   
+    textures.push(new Texture(boardMap.coordinates[1][7],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[2][7],"images/stone7.jpg")); 
+    textures.push(new Texture(boardMap.coordinates[2][8],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[2][9],"images/stone7.jpg"));  
+    textures.push(new Texture(boardMap.coordinates[1][9],"images/stone7.jpg"));
+    textures.push(new Texture(boardMap.coordinates[0][9],"images/stone7.jpg"));  
+  }
+
+  function generateTraps()
+  {
+    traps.push(new Texture(boardMap.coordinates[2][3],"images/mousetrap2.png"));
+    traps.push(new Texture(boardMap.coordinates[1][7],"images/snake.png"));
+  }
+
+  function generateEdges(){
+    var existe = false;
+
+    for(let row=0; row < boardMap.rows; row++)
+    {
+      for(let column = 0; column < boardMap.columns; column++)
+      {
+        existe=false;
+        textures.forEach(function(texture){
+          if(boardMap.coordinates[row][column].x === texture.x && boardMap.coordinates[row][column].y === texture.y)
+          {
+            existe = true;
+          }
+        });
+        if (!existe)
+        {
+          //edges.push(new Texture(boardMap.coordinates[row][column].x,boardMap.coordinates[row][column].y,"images/tree.png"));
+          edges.push(new Texture(boardMap.coordinates[row][column],"images/tree.png"));
+        }
+      }
+    }
   }
 
   function drawTextures(){
@@ -832,17 +620,26 @@ window.onload = function(){
     });
   }
 
+  function drawEdges(){
+    //ctx.strokeStyle = "white";
+    edges.forEach(function(edge){
+      edge.draw();
+    });
+  }
+
+  function drawTraps(){
+    //ctx.strokeStyle = "white";
+    traps.forEach(function(trap){
+      trap.draw();
+    });
+  }
 
   function checkForWalk(){
-    // if(!(frames%10 === 0))
-    // {
-    //   return;
-    // }
 
     if(stepCount < 80)
     {
       mousy.moveFordward();
-      stepCount += 1;
+      stepCount += mousy.speed;
     }
   }
 
@@ -853,30 +650,24 @@ window.onload = function(){
 
     board.draw();
     drawTextures();
-    //brokeStone.draw();
-    bridge.draw();
-    bridge2.draw();
-    tree.draw();
+    drawEdges();
+    drawTraps();
 
-    ///cuadricula.draw();
-    //drawPipes();
     mousy.draw();
-    
-    console.log(mousy.x+","+mousy.y);
-    
     queso.draw();
-    mouseTrap.draw();
-    snake.draw();
 
-    //checkColition();
-
+    checkColitionEdges();
+    checkColitionTraps();
     checkForWalk();
   }
 
   function startGame(){
     //generatePipes();
     //drawPipes();
+    boardMap.build();
     generateTextures();
+    generateEdges();
+    generateTraps();
     cuadricula.draw();
 
     if(intervalo > 0)
