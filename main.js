@@ -20,8 +20,16 @@ window.onload = function(){
     this.img.src = "images/water.jpg";
     this.frames = 0;
 
+    this.sound = new Audio();
+    this.sound.src = "sounds/ringtones-pink-panther.mp3";
+    this.sound.loop = true;
+
+    this.soundGameOver = new Audio();
+    this.soundGameOver.src="sounds/game_over2.mp3";
+
     this.img.onload = function(){
       this.draw();
+      this.sound.play();
     }.bind(this);
 
     this.draw = function(){
@@ -107,8 +115,8 @@ window.onload = function(){
     this.isGoingRight = false;
     this.speed = speed;
     
-    //this.sound = new Audio();
-    //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
+    this.sound = new Audio();
+    this.sound.src = "sounds/caminar.mp3";
 
     this.img.onload = function(){
       this.draw();
@@ -169,7 +177,7 @@ window.onload = function(){
         this.isGoingRight = false;
       }
       //this.sound.pause();
-      //this.sound.play();
+      // this.sound.play();
     }
 
     this.moveDown = function(){
@@ -319,6 +327,10 @@ window.onload = function(){
       {
         this.x += this.speed;
       } 
+
+      //this.sound.currentTime = 100;
+      this.sound.pause();
+      this.sound.play();
     }
 
     this.isTouching = function(pipe){
@@ -907,8 +919,8 @@ window.onload = function(){
   function stop(){
     clearInterval(intervalo);
     intervalo = 1;
-    //board.sound.pause();
-    //board.soundGameOver.play();
+    board.sound.pause();
+    board.soundGameOver.play();
   }
 
   function checkColitionEdges(){
@@ -1099,6 +1111,9 @@ window.onload = function(){
     {
       mousy.moveFordward();
       stepCount += mousy.speed;
+    }
+    else{
+      mousy.sound.pause();
     }
   }
 
