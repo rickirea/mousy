@@ -27,6 +27,9 @@ window.onload = function(){
     this.soundGameOver = new Audio();
     this.soundGameOver.src="sounds/game_over2.mp3";
 
+    this.soundGameWin = new Audio();
+    this.soundGameWin.src="sounds/aplausos.mp3";
+
     this.img.onload = function(){
       this.draw();
       this.sound.play();
@@ -893,6 +896,7 @@ window.onload = function(){
   function gameOver(){
     //alert("Game Over...");
     stop();
+    board.soundGameOver.play();
     ctx.font = "100px courier";
     ctx.strokeStyle = "red";
     ctx.lineWidth = 6;
@@ -907,6 +911,7 @@ window.onload = function(){
 
     var timeout = setTimeout(function (){
       stop();
+      board.soundGameWin.play();
     },1000);
 
     ctx.font = "100px courier";
@@ -920,7 +925,6 @@ window.onload = function(){
     clearInterval(intervalo);
     intervalo = 1;
     board.sound.pause();
-    board.soundGameOver.play();
   }
 
   function checkColitionEdges(){
