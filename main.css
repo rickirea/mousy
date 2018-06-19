@@ -1,11 +1,45 @@
 body{
-  text-align: center;
+  text-align: center !important;
+  background: url("images/texture1.png");
+}
+
+#title_game{
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
 #board_game{
-  position: relative;
+  /* position: relative; */
+  order: 1;
+  margin: 10px;
 }
 
-#canvas{
+#board_program{
+  order: 2;
+  margin: 10px;
+
+  width: 322px;
+  height: 402px;
   border: 1px solid black;
+  background-color: rgba(0,0,0, 0.8);
+  /* background: url(images/ironhack.png); */
+
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.item-program{
+  width: 40px;
+  height: 40px;
+  border: 1px dashed white;
+}
+
+#canvas, #canvasTitle{
+  border: 1px solid black;
+}
+
+.container-flex{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
