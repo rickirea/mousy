@@ -31,7 +31,7 @@ window.onload = function(){
     this.soundGameWin.src="sounds/aplausos.mp3";
 
     this.img.onload = function(){
-      this.draw();
+      //this.draw();
       this.sound.play();
     }.bind(this);
 
@@ -570,45 +570,6 @@ window.onload = function(){
     }
   }
 
-  function Queso(){
-    this.x = 720;
-    this.y = 0;
-    this.width = 80;
-    this.height = 80;
-    this.img = new Image();
-    this.img.src = "images/queso.png";
-    
-    //this.sound = new Audio();
-    //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
-
-    this.img.onload = function(){
-      this.draw();
-    }.bind(this);
-
-    this.draw = function(){
-      //this.y += 2;
-      ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-
-      if(this.y < 0 || this.y > canvas.height - this.height)
-      {
-        gameOver();
-      }
-    }
-
-    this.move = function(){
-      this.y -= 50;
-      //this.sound.pause();
-      //this.sound.play();
-    }.bind(this);
-
-    // this.isTouching = function(pipe){
-    //   return (this.x < pipe.x + pipe.width) 
-    //       && (this.x + this.width > pipe.x)
-    //       && (this.y < pipe.y + pipe.height)
-    //       && (this.y + this.height > pipe.y);
-    // }
-  }
-
   function Texture(celda,textureImage){
     this.x = celda.x;
     this.y = celda.y;
@@ -707,6 +668,9 @@ window.onload = function(){
     this.img.src = textureImage;
     this.textureImage = textureImage;
     this.show = true;
+    this.score = 0;
+    this.moves = 0;
+    this.chances = 0;
     
     //this.sound = new Audio();
     //this.sound.src = "http://soundfxcenter.com/video-games/super-mario-bros/8d82b5_Super_Mario_Bros_Jump_Super_Sound_Effect.mp3";
@@ -720,8 +684,37 @@ window.onload = function(){
       ctxT.drawImage(this.img, this.x, this.y, this.width, this.height);
 
     }
-  }
 
+    this.drawScore = function(){
+      this.score = Math.floor(frames/60);
+      ctxT.font = "40px Arial";
+      ctxT.fillStyle = "lime";
+      ctxT.fillText(this.score, this.x + 3, this.y + this.height - 5);
+      ctxT.font = "20px Arial";
+      ctxT.fillStyle = "white";
+      ctxT.fillText("Time", this.x + 10, this.y + 20);
+    }
+
+    this.drawMoves = function(moves){
+      this.moves = moves;
+      ctxT.font = "40px Arial";
+      ctxT.fillStyle = "lime";
+      ctxT.fillText(this.moves, this.x + 3, this.y + this.height - 5);
+      ctxT.font = "20px Arial";
+      ctxT.fillStyle = "white";
+      ctxT.fillText("Steps", this.x + 10, this.y + 20);
+    }
+
+    this.drawChanges = function(chances){
+      this.chances = chances;
+      ctxT.font = "40px Arial";
+      ctxT.fillStyle = "lime";
+      ctxT.fillText(this.chances, this.x + 3, this.y + this.height - 5);
+      ctxT.font = "20px Arial";
+      ctxT.fillStyle = "white";
+      ctxT.fillText("Quote", this.x + 10, this.y + 20);
+    }
+  }
   //declaraciones
   var board = new Board();
   var boardMap = new BoardMap(80,80,5,10);
@@ -742,6 +735,7 @@ window.onload = function(){
   var program = [];
   var indexInstructions=0;
   var repeatInstructions=1;
+  var changes = 0;
 
   //listeners
   var timeoutId;
@@ -824,6 +818,7 @@ window.onload = function(){
     if(e.keyCode === 13)
     {
       //repeatInstructions=1;
+      changes++;
       if(program.length > lastProgramming)
       {
         timeoutId = setTimeout(callbackFunction, 0);
@@ -1026,11 +1021,16 @@ window.onload = function(){
   function generateTexturesTitle()
   {
     var texture = "images/stone7.jpg"
+    // texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][0],"images/stone8.jpg"));
+    // texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][0],"images/Go2.png"));
     texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][0],texture));
     texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][1],texture));
     texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][2],texture));
     texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][3],texture));
     texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][4],texture));
+    texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][5],"images/stone8.jpg"));
+    texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][6],"images/stone8.jpg"));
+    texturesTitle.push(new TextureTitle(boardTitle.coordinates[0][7],"images/stone8.jpg"));
   }
 
   function generateWordsTitle()
@@ -1085,6 +1085,18 @@ window.onload = function(){
     //ctx.strokeStyle = "white";
     texturesTitle.forEach(function(texture){
       texture.draw();
+      if(texture.x == boardTitle.coordinates[0][5].x)
+      {
+        texture.drawScore();
+      }
+      if(texture.x == boardTitle.coordinates[0][7].x)
+      {
+        texture.drawChanges(changes);
+      }
+      if(texture.x == boardTitle.coordinates[0][6].x)
+      {
+        texture.drawMoves(indexInstructions);
+      }
     });
   }
 
@@ -1135,6 +1147,7 @@ window.onload = function(){
     ctxT.clearRect(0,0,canvasTitle.width, canvasTitle.height);
     drawTexturesTitle();
     drawWordsTitle();
+
     drawEdges();
     boat.draw();
     drawTextures();
